@@ -75,7 +75,7 @@ fun ageDescription(age: Int): String =
     else {
         when {
             (age % 10 == 1) -> "$age год"
-            (age % 10 >= 2) and (age % 10 <= 4) -> "$age года"
+            (age % 10 >= 2) && (age % 10 <= 4) -> "$age года"
             else -> "$age лет"
         }
     }
@@ -160,7 +160,7 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
     val middleSide = a + b + c - (maxSide + minSide)
     return if (maxSide > (minSide + middleSide)) -1
     else {
-        return when {
+        when {
             sqr(maxSide) < sqr(minSide) + sqr(middleSide) -> 0
             sqr(maxSide) == sqr(minSide) + sqr(middleSide) -> 1
             else -> 2
@@ -176,8 +176,8 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  * Найти длину пересечения отрезков AB и CD.
  * Если пересечения нет, вернуть -1.
  */
-fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
-    return when {
+fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int =
+    when {
         c in (a + 1) until b && d >= b -> b - c
         a in (c + 1) until d && b >= d -> d - a
         a <= c && d <= b -> d - c
@@ -185,4 +185,3 @@ fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
         b == c || d == a -> 0
         else -> -1
     }
-}
