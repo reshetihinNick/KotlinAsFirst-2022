@@ -237,7 +237,7 @@ fun cos(x: Double, eps: Double): Double {
     else x
     val degreeQuarter =
         if (degree >= 0.0 && (degree in 0.0..0.5 * PI || degree in 1.5 * PI..2.0 * PI)) 1.0
-        else if (degree in 0.0..-0.5 * PI || degree in -1.5 * PI..-2.0 * PI) 1.0
+        else if (degree in -0.5 * PI..0.0 || degree in -2.0 * PI..-1.5 * PI) 1.0
         else -1.0
     val cosineSqr = if (1.0 - sqr(sin(degree, eps)) < 0) 0.0
     else 1.0 - sqr(sin(degree, eps))
