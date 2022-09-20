@@ -192,9 +192,10 @@ fun isPalindrome(n: Int) = revert(n) == n
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun hasDifferentDigits(n: Int): Boolean {
-    var currentValue = n
-    while (currentValue / 10 != 0) {
-        if (currentValue % 10 != currentValue / 10 % 10) return true
+    val lastDigit = n % 10
+    var currentValue = n / 10
+    while (currentValue != 0) {
+        if (currentValue % 10 != lastDigit) return true
         currentValue /= 10
     }
     return false
@@ -209,18 +210,22 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Подумайте, как добиться более быстрой сходимости ряда при больших значениях x.
  * Использовать kotlin.math.sin и другие стандартные реализации функции синуса в этой задаче запрещается.
  */
+fun trigonometricFunction(degree: Double, eps: Double, firstMember: Double, nextMemberDifferent: Double): Double {
+    var seriesMember = firstMember
+    var trigFunction = 0.0
+    var i = 1
+    while (eps <= seriesMember.absoluteValue) {
+        trigFunction += seriesMember
+        seriesMember *= (-degree * degree) / (2 * i * (2 * i + nextMemberDifferent))
+        i++
+    }
+    return trigFunction
+}
+
 fun sin(x: Double, eps: Double): Double {
     val degree = if (x <= -2.0 * PI || x >= 2.0 * PI) x % (2.0 * PI)
     else x
-    var seriesMember = degree
-    var sine = 0.0
-    var i = 1
-    while (eps <= seriesMember.absoluteValue) {
-        sine += seriesMember
-        seriesMember *= (-degree * degree) / (2 * i * (2 * i + 1))
-        i++
-    }
-    return sine
+    return trigonometricFunction(degree, eps, degree, 1.0)
 }
 
 /**
@@ -235,13 +240,7 @@ fun sin(x: Double, eps: Double): Double {
 fun cos(x: Double, eps: Double): Double {
     val degree = if (x <= -2.0 * PI || x >= 2.0 * PI) x % (2.0 * PI)
     else x
-    val degreeQuarter =
-        if (degree >= 0.0 && (degree in 0.0..0.5 * PI || degree in 1.5 * PI..2.0 * PI)) 1.0
-        else if (degree in -0.5 * PI..0.0 || degree in -2.0 * PI..-1.5 * PI) 1.0
-        else -1.0
-    val cosineSqr = if (1.0 - sqr(sin(degree, eps)) < 0) 0.0
-    else 1.0 - sqr(sin(degree, eps))
-    return sqrt(cosineSqr) / degreeQuarter
+    return trigonometricFunction(degree, eps, 1.0, -1.0)
 }
 
 /**
@@ -253,21 +252,19 @@ fun cos(x: Double, eps: Double): Double {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun findDigit(n: Int, searchFunction: Boolean): Int {
+fun findDigit(n: Int, searchFunction: (Int) -> Int): Int {
     var searchValue = 0
     var digitCounter = 0
     var i = 1
     while (digitCounter < n) {
-        val function = if (searchFunction) sqr(i)
-        else fib(i)
-        searchValue = function
-        digitCounter += digitNumber(function)
+        searchValue = searchFunction(i)
+        digitCounter += digitNumber(searchFunction(i))
         i++
     }
     return (searchValue / (10.0.pow(digitCounter - n)).toInt()) % 10
 }
 
-fun squareSequenceDigit(n: Int) = findDigit(n, true)
+fun squareSequenceDigit(n: Int) = findDigit(n, ::sqr)
 
 /**
  * Сложная (5 баллов)
@@ -278,4 +275,4 @@ fun squareSequenceDigit(n: Int) = findDigit(n, true)
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int) = findDigit(n, false)
+fun fibSequenceDigit(n: Int) = findDigit(n, ::fib)
