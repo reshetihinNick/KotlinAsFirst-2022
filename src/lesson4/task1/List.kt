@@ -437,6 +437,7 @@ fun russian(n: Int): String {
                                 }
                             }
                             if (listOfDigit[i - 1] == 0 && i == 4) {
+                                this.append(" ")
                                 this.append(listOfX1000Digits[4])
                             }
                         }
