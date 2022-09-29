@@ -123,13 +123,9 @@ fun buildSumExample(list: List<Int>) = list.joinToString(separator = " + ", post
  * по формуле abs = sqrt(a1^2 + a2^2 + ... + aN^2).
  * Модуль пустого вектора считать равным 0.0.
  */
-fun abs(v: List<Double>): Double {
-    var sqrSum = 0.0
-    for (element in v) {
-        sqrSum += sqr(element)
-    }
-    return sqrt(sqrSum)
-}
+fun abs(v: List<Double>) = sqrt(v.fold(0.0) { previousResult, element ->
+    previousResult + sqr(element)
+})
 
 /**
  * Простая (2 балла)
@@ -163,12 +159,8 @@ fun center(list: MutableList<Double>): MutableList<Double> {
  * представленные в виде списков a и b. Скалярное произведение считать по формуле:
  * C = a1b1 + a2b2 + ... + aNbN. Произведение пустых векторов считать равным 0.
  */
-fun times(a: List<Int>, b: List<Int>): Int {
-    var c = 0
-    for (i in a.indices) {
-        c += a[i] * b[i]
-    }
-    return c
+fun times(a: List<Int>, b: List<Int>) = a.indices.fold(0) { previousResult, index ->
+    previousResult + a[index] * b[index]
 }
 
 /**
@@ -179,12 +171,8 @@ fun times(a: List<Int>, b: List<Int>): Int {
  * Коэффициенты многочлена заданы списком p: (p0, p1, p2, p3, ..., pN).
  * Значение пустого многочлена равно 0 при любом x.
  */
-fun polynom(p: List<Int>, x: Int): Int {
-    var px = 0
-    for (i in p.indices) {
-        px += p[i] * (x.toDouble().pow(i.toDouble())).toInt()
-    }
-    return px
+fun polynom(p: List<Int>, x: Int) = p.indices.fold(0) { px, index ->
+    px + p[index] * (x.toDouble().pow(index.toDouble())).toInt()
 }
 
 /**
@@ -245,11 +233,10 @@ fun convert(n: Int, base: Int): List<Int> {
     val digits = mutableListOf<Int>()
     var number = n
     while (number >= base) {
-        digits.add(number % base)
+        digits.add(0, number % base)
         number /= base
     }
-    digits.add(number)
-    digits.reverse()
+    digits.add(0, number)
     return digits
 }
 
@@ -269,8 +256,8 @@ fun convertToString(n: Int, base: Int): String {
     val asciiNumberTen = 'a'
     return buildString {
         for (element in numberInBase) {
-            if (element >= 10) this.append(asciiNumberTen + (element - 10))
-            else this.append("$element")
+            if (element >= 10) append(asciiNumberTen + (element - 10))
+            else append("$element")
         }
     }
 }
@@ -303,13 +290,15 @@ fun decimal(digits: List<Int>, base: Int): Int {
  * (например, str.toInt(base)), запрещается.
  */
 fun decimalFromString(str: String, base: Int): Int {
-    var number = 0
+    val listOfDigits = mutableListOf<Int>()
     for (i in str.indices) {
-        val fromAsciiCodeToInt = if (str[str.length - (i + 1)] >= 'a') str[str.length - (i + 1)] - 'a' + 10
-        else str[str.length - (i + 1)] - '0'
-        number += fromAsciiCodeToInt * base.toDouble().pow(i).toInt()
+        listOfDigits.add(
+            0,
+            if (str[str.length - (i + 1)] >= 'a') str[str.length - (i + 1)] - 'a' + 10
+            else str[str.length - (i + 1)] - '0'
+        )
     }
-    return number
+    return decimal(listOfDigits, base)
 }
 
 /**
@@ -320,50 +309,18 @@ fun decimalFromString(str: String, base: Int): Int {
  * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
-fun numberToListOfDigits(n: Int): List<Int> {
-    val listOfDigits = mutableListOf<Int>()
-    var number = n
-    while (number != 0) {
-        listOfDigits.add(number % 10)
-        number /= 10
-    }
-    listOfDigits.reverse()
-    return listOfDigits
-}
 
 fun roman(n: Int): String {
-    val romanX5DigitList = listOf('V', 'L', 'D')
-    val romanX10DigitList = listOf('I', 'X', 'C', 'M')
-    val listOfDigit = numberToListOfDigits(n)
+    val romanDigits = listOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
+    val arabianDigits = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
+    var number = n
+    var counter = 0
     return buildString {
-        for (i in listOfDigit.indices) {
-            val currentIndex = listOfDigit.size - (i + 1)
-            when (listOfDigit[i]) {
-                0 -> this.append("")
-                1, 2, 3 -> {
-                    for (ind in 0 until listOfDigit[i]) {
-                        this.append(romanX10DigitList[currentIndex])
-                    }
-                }
-
-                4 -> {
-                    this.append(romanX10DigitList[currentIndex])
-                    this.append(romanX5DigitList[currentIndex])
-                }
-
-                5 -> this.append(romanX5DigitList[currentIndex])
-                9 -> {
-                    this.append(romanX10DigitList[currentIndex])
-                    this.append(romanX10DigitList[currentIndex + 1])
-                }
-
-                else -> {
-                    this.append(romanX5DigitList[currentIndex])
-                    for (ind in 0 until listOfDigit[i] - 5) {
-                        this.append(romanX10DigitList[currentIndex])
-                    }
-                }
-            }
+        while (number != 0) {
+            if (number >= arabianDigits[counter]) {
+                append(romanDigits[counter])
+                number -= arabianDigits[counter]
+            } else counter++
         }
     }
 }
@@ -375,6 +332,16 @@ fun roman(n: Int): String {
  * Например, 375 = "триста семьдесят пять",
  * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
  */
+fun numberToListOfDigits(n: Int): List<Int> {
+    val listOfDigits = mutableListOf<Int>()
+    var number = n
+    while (number != 0) {
+        listOfDigits.add(number % 10)
+        number /= 10
+    }
+    return listOfDigits
+}
+
 fun russian(n: Int): String {
     val listOfRuDigits = listOf("один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять")
     val listOfRu10sDigits = listOf(
@@ -389,7 +356,7 @@ fun russian(n: Int): String {
         "сто", "двести", "ста", "сот"
     )
     val listOfX1000Digits = listOf("одна", "две", "тысяча", "тысячи", "тысяч")
-    val listOfDigit = numberToListOfDigits(n).reversed()
+    val listOfDigit = numberToListOfDigits(n)
     return buildString {
         for (i in listOfDigit.size - 1 downTo 0) {
             if (listOfDigit[i] != 0) {
@@ -398,75 +365,75 @@ fun russian(n: Int): String {
                         if (i + 1 < listOfDigit.size && listOfDigit[i + 1] == 1) continue
                         if (i == 3) {
                             if (listOfDigit[i] in 1..2) {
-                                this.append(listOfX1000Digits[listOfDigit[i] - 1])
+                                append(listOfX1000Digits[listOfDigit[i] - 1])
                             } else {
-                                this.append(listOfRuDigits[listOfDigit[i] - 1])
+                                append(listOfRuDigits[listOfDigit[i] - 1])
                             }
-                            this.append(" ")
+                            append(" ")
                             when (listOfDigit[i]) {
-                                1 -> this.append(listOfX1000Digits[2])
-                                2, 3, 4 -> this.append(listOfX1000Digits[3])
-                                else -> this.append(listOfX1000Digits[4])
+                                1 -> append(listOfX1000Digits[2])
+                                2, 3, 4 -> append(listOfX1000Digits[3])
+                                else -> append(listOfX1000Digits[4])
                             }
-                        } else this.append(listOfRuDigits[listOfDigit[i] - 1])
+                        } else append(listOfRuDigits[listOfDigit[i] - 1])
                     }
 
                     1, 4 -> {
                         if (listOfDigit[i] == 1) {
-                            this.append(listOfRu10sDigits[listOfDigit[i - 1]])
+                            append(listOfRu10sDigits[listOfDigit[i - 1]])
                             if (i == 4) {
-                                this.append(" ")
-                                this.append(listOfX1000Digits[4])
+                                append(" ")
+                                append(listOfX1000Digits[4])
                             }
                         } else {
                             when (listOfDigit[i]) {
                                 2, 3 -> {
-                                    this.append(listOfRuDigits[listOfDigit[i] - 1])
-                                    this.append(listOfRuX10Digits[0])
+                                    append(listOfRuDigits[listOfDigit[i] - 1])
+                                    append(listOfRuX10Digits[0])
                                 }
 
-                                4 -> this.append(listOfRuX10Digits[1])
+                                4 -> append(listOfRuX10Digits[1])
                                 5, 6, 7, 8 -> {
-                                    this.append(listOfRuDigits[listOfDigit[i] - 1])
-                                    this.append(listOfRuX10Digits[2])
+                                    append(listOfRuDigits[listOfDigit[i] - 1])
+                                    append(listOfRuX10Digits[2])
                                 }
 
                                 else -> {
-                                    this.append(listOfRuX10Digits[3])
-                                    this.append(listOfX100Digits[0])
+                                    append(listOfRuX10Digits[3])
+                                    append(listOfX100Digits[0])
                                 }
                             }
                             if (listOfDigit[i - 1] == 0 && i == 4) {
-                                this.append(" ")
-                                this.append(listOfX1000Digits[4])
+                                append(" ")
+                                append(listOfX1000Digits[4])
                             }
                         }
                     }
 
                     2, 5 -> {
                         when (listOfDigit[i]) {
-                            1, 2 -> this.append(listOfX100Digits[listOfDigit[i] - 1])
+                            1, 2 -> append(listOfX100Digits[listOfDigit[i] - 1])
                             3, 4 -> {
-                                this.append(listOfRuDigits[listOfDigit[i] - 1])
-                                this.append(listOfX100Digits[2])
+                                append(listOfRuDigits[listOfDigit[i] - 1])
+                                append(listOfX100Digits[2])
                             }
 
                             else -> {
-                                this.append(listOfRuDigits[listOfDigit[i] - 1])
-                                this.append(listOfX100Digits[3])
+                                append(listOfRuDigits[listOfDigit[i] - 1])
+                                append(listOfX100Digits[3])
                             }
                         }
                         if (i == 5 && listOfDigit[i - 1] == 0 && listOfDigit[i - 2] == 0) {
-                            this.append(" ")
-                            this.append(listOfX1000Digits[4])
+                            append(" ")
+                            append(listOfX1000Digits[4])
                         }
                     }
                 }
                 if (i != 0) {
-                    this.append(" ")
+                    append(" ")
                 }
             }
         }
-        if (this.elementAt(this.lastIndex) == ' ') this.deleteCharAt(this.lastIndex)
+        if (elementAt(lastIndex) == ' ') deleteCharAt(lastIndex)
     }
 }
