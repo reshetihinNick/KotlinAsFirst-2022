@@ -169,7 +169,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
     return buildMap {
         this += mapA
         for ((name, phoneNumber) in mapB) {
-            if (mapA.contains(name) && phoneNumber != mapA[name]) this[name] = phoneNumber + ", " + mapB[name]
+            if (mapA.contains(name) && phoneNumber != mapA[name]) this[name] += ", $phoneNumber"
             else this[name] = phoneNumber
         }
     }
@@ -233,7 +233,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  * Например:
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
-fun canBuildFrom(chars: List<Char>, word: String) = word.toSet() == chars.toSet()
+fun canBuildFrom(chars: List<Char>, word: String) = word.toSet() union chars.toSet() == chars.toSet()
 
 /**
  * Средняя (4 балла)
