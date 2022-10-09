@@ -2,7 +2,7 @@
 
 package lesson5.task1
 
-import kotlin.system.measureTimeMillis
+import lesson4.task1.mean
 
 // Урок 5: ассоциативные массивы и множества
 // Максимальное количество баллов = 14
@@ -185,18 +185,11 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
  *   averageStockPrice(listOf("MSFT" to 100.0, "MSFT" to 200.0, "NFLX" to 40.0))
  *     -> mapOf("MSFT" to 150.0, "NFLX" to 40.0)
  */
-fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
-    return buildMap {
-        for ((stock, price) in stockPrices) {
-            if (!containsKey(stock)) this[stock] = price
-            else this[stock] = this[stock]!!.plus(price)
-        }
-        for (stock in this.keys) {
-            val counterOfStock = stockPrices.count { it.first == stock }
-            if (counterOfStock > 1) this[stock] = this[stock]!!.div(counterOfStock)
-        }
-    }
-}
+fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> =
+    stockPrices.groupBy(
+        keySelector = { it.first },
+        valueTransform = { it.second }
+    ).mapValues { mean(it.value) }
 
 /**
  * Средняя (4 балла)
@@ -213,16 +206,8 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *     "печенье"
  *   ) -> "Мария"
  */
-fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
-    val mapOfProductType = stuff.filter { it.value.first == kind }
-    if (mapOfProductType.isNotEmpty()) {
-        val mapOfMinPrice = mapOfProductType.values.minOf { it.second }
-        for (name in mapOfProductType.keys) {
-            if (mapOfProductType[name]?.second == mapOfMinPrice) return name
-        }
-    }
-    return null
-}
+fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String) =
+    stuff.filter { it.value.first == kind }.minByOrNull { it.value.second }?.key
 
 /**
  * Средняя (3 балла)
@@ -247,14 +232,8 @@ fun canBuildFrom(chars: List<Char>, word: String) = word.toSet() union chars.toS
  * Например:
  *   extractRepeats(listOf("a", "b", "a")) -> mapOf("a" to 2)
  */
-fun extractRepeats(list: List<String>): Map<String, Int> {
-    return buildMap {
-        for (repeatedElements in list.toSet()) {
-            val repeatCounter = list.count { it == repeatedElements }
-            if (repeatCounter > 1) put(repeatedElements, list.count { it == repeatedElements })
-        }
-    }
-}
+fun extractRepeats(list: List<String>) =
+    list.groupBy { it }.mapValues { it.value.size }.filter { it.value > 1 }
 
 /**
  * Средняя (3 балла)
@@ -330,7 +309,15 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  *   findSumOfTwo(listOf(1, 2, 3), 4) -> Pair(0, 2)
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
-fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> = TODO()
+fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
+    val searchPair =
+        list.indices
+            .associateWith { list.indexOf(number - list[it]) }
+            .filter { it.key >= 0 && it.value >= 0 && it.key != it.value }
+            .toList()
+    return if (searchPair.isEmpty()) Pair(-1, -1)
+    else Pair(minOf(searchPair[0].first, searchPair[0].second), maxOf(searchPair[0].first, searchPair[0].second))
+}
 
 /**
  * Очень сложная (8 баллов)
