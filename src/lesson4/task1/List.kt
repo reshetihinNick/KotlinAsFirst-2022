@@ -233,10 +233,11 @@ fun convert(n: Int, base: Int): List<Int> {
     val digits = mutableListOf<Int>()
     var number = n
     while (number >= base) {
-        digits.add(0, number % base)
+        digits.add(number % base)
         number /= base
     }
-    digits.add(0, number)
+    digits.add(number)
+    digits.reverse()
     return digits
 }
 

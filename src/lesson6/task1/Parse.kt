@@ -2,6 +2,8 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+
 // Урок 6: разбор строк, исключения
 // Максимальное количество баллов = 13
 // Рекомендуемое количество баллов = 11
@@ -74,7 +76,25 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+fun dateStrToDigit(str: String): String {
+    val listOfMonth = listOf(
+        "января", "февраля", "марта",
+        "апреля", "мая", "июня", "июля",
+        "августа", "сентября", "октября",
+        "ноября", "декабря"
+    )
+    val date = str.split(" ")
+    return try {
+        if (listOfMonth.contains(date[1]) &&
+            date[0].toInt() <= daysInMonth(listOfMonth.indexOf(date[1]) + 1, date[2].toInt())
+        ) {
+            String.format("%02d.%02d.%04d", date[0].toInt(), listOfMonth.indexOf(date[1]) + 1, date[2].toInt())
+        } else ""
+    } catch (e: Exception) {
+        ""
+    }
+}
+
 
 /**
  * Средняя (4 балла)
@@ -86,7 +106,25 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+fun dateDigitToStr(digital: String): String {
+    val listOfMonth = listOf(
+        "января", "февраля", "марта",
+        "апреля", "мая", "июня", "июля",
+        "августа", "сентября", "октября",
+        "ноября", "декабря"
+    )
+    val date = digital.split(".")
+    return try {
+        if (date[1].toInt() in 1..12 && date.lastIndex == 2 &&
+            date[0].toInt() <= daysInMonth(date[1].toInt(), date[2].toInt())
+        ) {
+            String.format("%d ${listOfMonth[date[1].toInt() - 1]} %d", date[0].toInt(), date[2].toInt())
+        } else ""
+    } catch (e: Exception) {
+        ""
+    }
+}
+
 
 /**
  * Средняя (4 балла)
@@ -102,7 +140,18 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    val illegalChars = Regex("""[^\s+\d\(\)-]""").find(phone)?.value
+    val illegalCitiCode = Regex("""\(.*\)""").find(phone)
+    return if (illegalChars == null) {
+        val result = Regex("""[+\d]""").findAll(phone).map { it.groupValues[0] }.joinToString(separator = "")
+        if (illegalCitiCode?.value != null) {
+            val citiCode = Regex("""\d""").find(illegalCitiCode.value)?.value
+            if (citiCode == null) ""
+            else result
+        } else result
+    } else ""
+}
 
 /**
  * Средняя (5 баллов)
@@ -114,7 +163,17 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestScore(illegalChars: Regex, result: Regex, jumps: String): Int {
+    val illegalCharsFound = illegalChars.find(jumps)?.value
+    return if (illegalCharsFound == null) {
+        val successfulJump = result.findAll(jumps).map { it.groupValues[0].toInt() }.toList()
+        if (successfulJump.isNotEmpty()) {
+            successfulJump.max()
+        } else -1
+    } else -1
+}
+
+fun bestLongJump(jumps: String) = bestScore(Regex("""[^\s-%\d]"""), Regex("""\d+"""), jumps)
 
 /**
  * Сложная (6 баллов)
@@ -127,7 +186,8 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String) =
+    bestScore(Regex("""[^\s-+%\d]"""), Regex("""(\d+(?=\s(?=\D+\+)))|(\d+(?=\s(?=\+)))"""), jumps)
 
 /**
  * Сложная (6 баллов)
@@ -138,7 +198,27 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    val illegalChars = Regex("""[^\d\+\-\s]""").find(expression)?.value
+    val illegalStatements =
+        Regex("""([\+\-][\+\-])|([\+\-]\s[\+\-])|(\d\s\d)""").find(expression)?.value
+    val illegalStringBegin = Regex(""".""").find(expression)?.value
+    val presenceOfNumber = Regex("""\d+""").find(expression)?.value
+    if (illegalChars == null && illegalStatements == null && presenceOfNumber != null
+        && illegalStringBegin != "+" && illegalStringBegin != "-"
+    ) {
+        val firstNumber = Regex("""\d+""").find(expression)!!.value.toInt()
+        val numbersWithPlus = Regex("""(?<=\+\s)\d+""").findAll(expression)
+            .map { it.groupValues[0].toInt() }
+            .toList()
+            .sum()
+        val numbersWithMinus = Regex("""(?<=\-\s)\d+""").findAll(expression)
+            .map { it.groupValues[0].toInt() }
+            .toList()
+            .sum()
+        return firstNumber + numbersWithPlus - numbersWithMinus
+    } else throw IllegalArgumentException()
+}
 
 /**
  * Сложная (6 баллов)

@@ -101,8 +101,8 @@ fun buildWordSet(text: List<String>): MutableSet<String> {
 fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
     val mapOfGrades = mutableMapOf<Int, MutableList<String>>()
     for ((student, grade) in grades) {
-        if (mapOfGrades.containsKey(grade)) mapOfGrades[grade]?.add(student)
-        else mapOfGrades[grade] = mutableListOf(student)
+        val adding = mapOfGrades.putIfAbsent(grade, mutableListOf(student))
+        if (adding != null) mapOfGrades[grade]!!.add(student)
     }
     return mapOfGrades
 }
@@ -310,13 +310,13 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    val searchPair =
-        list.indices
-            .associateWith { list.indexOf(number - list[it]) }
-            .filter { it.key >= 0 && it.value >= 0 && it.key != it.value }
-            .toList()
-    return if (searchPair.isEmpty()) Pair(-1, -1)
-    else Pair(minOf(searchPair[0].first, searchPair[0].second), maxOf(searchPair[0].first, searchPair[0].second))
+    val searchPair = list.indices.associateWith { list.indexOf(number - list[it]) }
+    for ((key, value) in searchPair) {
+        if (key != value && key >= 0 && value >= 0) {
+            return Pair(key, value)
+        }
+    }
+    return Pair(-1, -1)
 }
 
 /**
