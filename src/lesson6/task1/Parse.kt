@@ -88,7 +88,7 @@ fun dateStrToDigit(str: String): String {
         if (listOfMonth.contains(date[1]) &&
             date[0].toInt() <= daysInMonth(listOfMonth.indexOf(date[1]) + 1, date[2].toInt())
         ) {
-            String.format("%02d.%02d.%04d", date[0].toInt(), listOfMonth.indexOf(date[1]) + 1, date[2].toInt())
+            String.format("%02d.%02d.%d", date[0].toInt(), listOfMonth.indexOf(date[1]) + 1, date[2].toInt())
         } else ""
     } catch (e: Exception) {
         ""
