@@ -199,14 +199,8 @@ fun bestHighJump(jumps: String) =
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    val illegalChars = Regex("""[^\d\+\-\s]""").find(expression)?.value
-    val illegalStatements =
-        Regex("""([\+\-][\+\-])|([\+\-]\s[\+\-])|(\d\s\d)""").find(expression)?.value
-    val illegalStringBegin = Regex(""".""").find(expression)?.value
-    val presenceOfNumber = Regex("""\d+""").find(expression)?.value
-    if (illegalChars == null && illegalStatements == null && presenceOfNumber != null
-        && illegalStringBegin != "+" && illegalStringBegin != "-"
-    ) {
+    val legalExpression = Regex("""(\d+ ([\-\+] \d+ ?)+)|(\d+)""").matches(expression)
+    if (legalExpression) {
         val firstNumber = Regex("""\d+""").find(expression)!!.value.toInt()
         val numbersWithPlus = Regex("""(?<=\+\s)\d+""").findAll(expression)
             .map { it.groupValues[0].toInt() }

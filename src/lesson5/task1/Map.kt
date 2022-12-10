@@ -101,8 +101,9 @@ fun buildWordSet(text: List<String>): MutableSet<String> {
 fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
     val mapOfGrades = mutableMapOf<Int, MutableList<String>>()
     for ((student, grade) in grades) {
-        val adding = mapOfGrades.putIfAbsent(grade, mutableListOf(student))
-        if (adding != null) mapOfGrades[grade]!!.add(student)
+        mapOfGrades.putIfAbsent(grade, mutableListOf(student)).let {
+            if (it != null) mapOfGrades[grade]!!.add(student)
+        }
     }
     return mapOfGrades
 }
@@ -146,7 +147,7 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
  * В выходном списке не должно быть повторяющихся элементов,
  * т. е. whoAreInBoth(listOf("Марат", "Семён, "Марат"), listOf("Марат", "Марат")) == listOf("Марат")
  */
-fun whoAreInBoth(a: List<String>, b: List<String>) = (a - (a - b.toSet()).toSet()).toSet().toList()
+fun whoAreInBoth(a: List<String>, b: List<String>) = (a.toSet() intersect b.toSet()).toList()
 
 /**
  * Средняя (3 балла)
@@ -218,7 +219,9 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String) =
  * Например:
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
-fun canBuildFrom(chars: List<Char>, word: String) = word.toSet() union chars.toSet() == chars.toSet()
+fun canBuildFrom(chars: List<Char>, word: String) =
+    chars.map { it.lowercase() }.toSet() union word.map { it.lowercase() }.toSet() ==
+            chars.map { it.lowercase() }.toSet()
 
 /**
  * Средняя (4 балла)
@@ -310,10 +313,14 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    val searchPair = list.indices.associateWith { list.indexOf(number - list[it]) }
-    for ((key, value) in searchPair) {
-        if (key != value && key >= 0 && value >= 0) {
-            return Pair(key, value)
+    val searchPairList = list intersect list.map { number - it }.toSet()
+    for (num in searchPairList) {
+        if (num != number / 2) {
+            return Pair(list.indexOf(num), list.indexOf(number - num))
+        } else {
+            if (list.count { it == num } > 1) {
+                return Pair(list.indexOf(num), (list - num).indexOf(num) + 1)
+            }
         }
     }
     return Pair(-1, -1)
