@@ -510,9 +510,12 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
                 else "$currentDivisible"
                 val maxDivSize = maxOf(divisorString.length, divisibleString.length)
                 writer.println("${" ".repeat(sizeForSpace)}$divisibleString")
-                sizeForSpace -= (divisorString.length - divisibleString.length).absoluteValue
+                sizeForSpace -= divisorString.length - divisibleString.length
                 writer.println("${" ".repeat(sizeForSpace)}$divisorString")
-                writer.println("${" ".repeat(sizeForSpace)}${"-".repeat(maxDivSize)}")
+                val spaceForDash = if (divisibleString.length > divisorString.length) {
+                    sizeForSpace - (divisorString.length - divisibleString.length).absoluteValue
+                } else sizeForSpace
+                writer.println("${" ".repeat(spaceForDash)}${"-".repeat(maxDivSize)}")
                 sizeForSpace += "-$currentDivisor".length - "$currentMod".length
             }
             if (currentMod == 0) {
