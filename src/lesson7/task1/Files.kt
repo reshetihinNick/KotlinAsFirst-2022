@@ -510,7 +510,7 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             if (currentMod == 0) {
                 currentDivisible = 0
                 zeroCurrentMod = true
-            }
+            } else zeroCurrentMod = false
             if (index == listOfLHVDigits.lastIndex) {
                 writer.print("${" ".repeat(sizeForSpace)}${lhv % rhv}")
             }
