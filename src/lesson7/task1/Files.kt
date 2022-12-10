@@ -5,6 +5,7 @@ package lesson7.task1
 import lesson4.task1.numberToListOfDigits
 import java.io.File
 import java.io.PrintStream
+import kotlin.math.absoluteValue
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -504,15 +505,14 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
                 sizeForSpace = maxOf("-$currentDivisor".length, "$currentDivisible".length) - "$currentMod".length
                 firstDivisible = false
             } else {
-                sizeForSpace -= if (zeroCurrentMod) {
-                    writer.println("${" ".repeat(sizeForSpace)}0$currentDivisible")
-                    "0$currentDivisible".length - "-$currentDivisor".length
-                } else {
-                    writer.println("${" ".repeat(sizeForSpace)}$currentDivisible")
-                    "-$currentDivisor".length - "$currentDivisible".length
-                }
-                writer.println("${" ".repeat(sizeForSpace)}-$currentDivisor")
-                writer.println("${" ".repeat(sizeForSpace)}${"-".repeat("-$currentDivisor".length)}")
+                val divisorString = "-$currentDivisor"
+                val divisibleString = if (zeroCurrentMod) "0$currentDivisible"
+                else "$currentDivisible"
+                val maxDivSize = maxOf(divisorString.length, divisibleString.length)
+                writer.println("${" ".repeat(sizeForSpace)}$divisibleString")
+                sizeForSpace -= (divisorString.length - divisibleString.length).absoluteValue
+                writer.println("${" ".repeat(sizeForSpace)}$divisorString")
+                writer.println("${" ".repeat(sizeForSpace)}${"-".repeat(maxDivSize)}")
                 sizeForSpace += "-$currentDivisor".length - "$currentMod".length
             }
             if (currentMod == 0) {
