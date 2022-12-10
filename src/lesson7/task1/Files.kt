@@ -489,7 +489,7 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             val currentMod = currentDivisible % rhv
             val currentDivisor = currentDivisible - currentMod
             if (firstDivisible) {
-                val spaceForDivisor = if ("$currentDivisible".length > "-$currentDivisor".length) {
+                val spaceForDivisor = if ("$currentDivisible".length >= "-$currentDivisor".length) {
                     writer.println("$lhv | $rhv")
                     sizeForSpace = "$lhv | ".length
                     "$currentDivisible".length - "-$currentDivisor".length
