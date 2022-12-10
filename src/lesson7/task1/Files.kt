@@ -476,8 +476,7 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     val writer = PrintStream(File(outputName))
     val listOfLHVDigits = numberToListOfDigits(lhv).reversed()
-    writer.println(" $lhv | $rhv")
-    var sizeForSpace = " $lhv | ".length
+    var sizeForSpace = 0
     var firstDivisible = true
     var zeroCurrentMod = false
     var currentDivisible = 0
@@ -487,12 +486,22 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             continue
         } else {
             val currentMod = currentDivisible % rhv
-            val currentDivisor = currentDivisible - (currentMod)
+            val currentDivisor = currentDivisible - currentMod
             if (firstDivisible) {
+                val spaceForDivisor = if ("$currentDivisible".length > "-$currentDivisor".length) {
+                    writer.println("$lhv | $rhv")
+                    sizeForSpace = "$lhv | ".length
+                    "$currentDivisible".length - "-$currentDivisor".length
+                } else {
+                    writer.println(" $lhv | $rhv")
+                    sizeForSpace = " $lhv | ".length
+                    0
+                }
+                sizeForSpace -= (spaceForDivisor + "-$currentDivisor".length)
                 writer
-                    .println("-$currentDivisor${" ".repeat(sizeForSpace - "-$currentDivisor".length)}${lhv / rhv}")
-                writer.println("-".repeat("-$currentDivisor".length))
-                sizeForSpace = "-$currentDivisor".length - "$currentMod".length
+                    .println("${" ".repeat(spaceForDivisor)}-$currentDivisor${" ".repeat(sizeForSpace)}${lhv / rhv}")
+                writer.println("-".repeat(maxOf("-$currentDivisor".length, "$currentDivisible".length)))
+                sizeForSpace = maxOf("-$currentDivisor".length, "$currentDivisible".length) - "$currentMod".length
                 firstDivisible = false
             } else {
                 sizeForSpace -= if (zeroCurrentMod) {
