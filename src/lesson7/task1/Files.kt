@@ -2,7 +2,9 @@
 
 package lesson7.task1
 
+import lesson4.task1.numberToListOfDigits
 import java.io.File
+import java.io.PrintStream
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -472,6 +474,48 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  *
  */
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val writer = PrintStream(File(outputName))
+    val listOfLHVDigits = numberToListOfDigits(lhv).reversed()
+    writer.println(" $lhv | $rhv")
+    var sizeForSpace = " $lhv | ".length
+    var firstDivisible = true
+    var zeroCurrentMod = false
+    var currentDivisible = 0
+    for (index in listOfLHVDigits.indices) {
+        currentDivisible = listOfLHVDigits[index] + currentDivisible * 10
+        if (firstDivisible && index != listOfLHVDigits.lastIndex && currentDivisible / rhv == 0) {
+            continue
+        } else {
+            val currentMod = currentDivisible % rhv
+            val currentDivisor = currentDivisible - (currentMod)
+            if (firstDivisible) {
+                writer
+                    .println("-$currentDivisor${" ".repeat(sizeForSpace - "-$currentDivisor".length)}${lhv / rhv}")
+                writer.println("-".repeat("-$currentDivisor".length))
+                sizeForSpace = "-$currentDivisor".length - "$currentMod".length
+                currentDivisible = currentMod
+                firstDivisible = false
+            } else {
+                sizeForSpace -= if (zeroCurrentMod) {
+                    writer.println("${" ".repeat(sizeForSpace)}0$currentDivisible")
+                    "0$currentDivisible".length - "-$currentDivisor".length
+                } else {
+                    writer.println("${" ".repeat(sizeForSpace)}$currentDivisible")
+                    "-$currentDivisor".length - "$currentDivisible".length
+                }
+                writer.println("${" ".repeat(sizeForSpace)}-$currentDivisor")
+                writer.println("${" ".repeat(sizeForSpace)}${"-".repeat("-$currentDivisor".length)}")
+                sizeForSpace += "-$currentDivisor".length - "$currentMod".length
+            }
+            if (currentMod == 0) {
+                currentDivisible = 0
+                zeroCurrentMod = true
+            }
+            if (index == listOfLHVDigits.lastIndex) {
+                writer.print("${" ".repeat(sizeForSpace)}${lhv % rhv}")
+            }
+        }
+    }
+    writer.close()
 }
 
