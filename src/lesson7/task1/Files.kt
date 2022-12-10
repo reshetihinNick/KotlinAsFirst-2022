@@ -493,7 +493,6 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
                     .println("-$currentDivisor${" ".repeat(sizeForSpace - "-$currentDivisor".length)}${lhv / rhv}")
                 writer.println("-".repeat("-$currentDivisor".length))
                 sizeForSpace = "-$currentDivisor".length - "$currentMod".length
-                currentDivisible = currentMod
                 firstDivisible = false
             } else {
                 sizeForSpace -= if (zeroCurrentMod) {
@@ -510,7 +509,10 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             if (currentMod == 0) {
                 currentDivisible = 0
                 zeroCurrentMod = true
-            } else zeroCurrentMod = false
+            } else {
+                currentDivisible = currentMod
+                zeroCurrentMod = false
+            }
             if (index == listOfLHVDigits.lastIndex) {
                 writer.print("${" ".repeat(sizeForSpace)}${lhv % rhv}")
             }
